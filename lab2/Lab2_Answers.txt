@@ -1,0 +1,71 @@
+			 Lab 2 - Using the LCD Display
+
+Edit the document below to fill in your answers to the review problems at the
+end of the assignment web page.
+
+
+
+1. (2 points) Normally we only read the bits in the PIN register, but a close
+reading of the ATmega328P datasheet reveals that writing a 1 to PIN register
+bit has the effect of inverting the bit in the corresponding PORT register.
+For example, if you write a 1 to PINC, bit 3, it will invert bit 3 in the PORTC
+register.  Based on this information, Billy Bruin has decided that he now knows
+an easy way to "toggle" the E bit (flipping it to its opposite value) to
+generate the E pulse in the lcd_writenibble() function by using this code.
+
+    PINB |= (1 << PB1)     // Toggle E bit from 0 to 1
+    PORTB |= (1 << PB1);   // Delay to make the E pulse longer
+    PINB |= (1 << PB1)     // Toggle E bit from 1 to 0
+
+Note: PINB |= (1 << PB1); is equivalent to PINB = PINB | (1 << PB1);
+
+Tammy Trojan has also read the datasheeet and found that when reading the PIN
+register, if a bit in the group is configured as input, the the voltage coming
+in the PIN is returned, but if a bit is configured as output, the corresponding
+PORT bit value is returned.  From this she concludes that it is possible that
+Billy's method can cause problems depending on how the compiler converts the
+program to instructions the processor executes and therefore should not be
+used.  For the program to work reliably, she recommends using this code to
+generate the E pulse.
+
+    PINB = (1 << PB1)      // Toggle E bit from 0 to 1
+    PORTB |= (1 << PB1);   // Delay to make the E pulse longer
+    PINB = (1 << PB1)      // Toggle E bit from 1 to 0
+
+Tammy says that in this lab assignment with the PAUSE button on PB3, Billy
+Bruin's code can cause the PAUSE button to stop working.  Can you explain why
+this could happen?
+
+Answer:
+	
+	Billy's code uses PINB |= (1 << PB1); to toggle the E bit by writing a 1 to the PINB register. While this does flip the PB1 bit, it also modifies the entire PINB register, not just PB1. This means other bits, like PB3 (which is connected to the PAUSE button), could be unintentionally affected.
+
+Since PB3 is likely configured as an input for the PAUSE button, reading and modifying the entire PINB register can change its state or disrupt the reading of the button. As a result, the PAUSE button may stop working correctly because the program unintentionally modifies its input.
+
+Tammy's recommendation, PINB = (1 << PB1);, directly toggles only PB1, leaving PB3 (and other bits) untouched. This ensures the PAUSE button keeps functioning properly without interference from the toggling operation.
+
+
+
+
+
+
+
+2. (1 point) Suppose we need to perform 3 concurrent tasks intermittently: Task
+A every 20 ms, Task B every 15 ms, and Task C every 40 ms. What delay should be
+used on each iteration of the main loop?
+ 
+
+Answer:
+	To manage three tasks running at different intervals—Task A every 20 ms, Task B every 15 ms, and Task C every 40 ms—we need to find the least common multiple (LCM) of the intervals. The LCM ensures that the timing of the tasks lines up and all of them execute as expected.
+
+	Task A runs every 20 ms.
+	Task B runs every 15 ms.
+	Task C runs every 40 ms.
+
+The LCM of 20, 15, and 40 is 120 ms, meaning this is the shortest time interval where all three tasks can execute on schedule. For instance, within a 120 ms period, Task A will run 6 times, Task B will run 8 times, and Task C will run 3 times.
+
+Therefore, the main loop should have a delay of 120 ms to ensure that all tasks run at their correct intervals without skipping or overlapping their required timing.
+ 
+
+
+

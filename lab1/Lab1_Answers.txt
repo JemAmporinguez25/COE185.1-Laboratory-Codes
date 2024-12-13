@@ -1,0 +1,35 @@
+
+		       Lab 1 - Arduino Input and Output
+
+Edit the document below to fill in your answers to the review problems at the
+end of the assignment web page.
+
+1. (2 points) Suppose we relocated the three buttons from group B, bits 5-3 to
+group D, bits 5-3, noting that the LED is still attached to group D, bit
+2. Assuming appropriate DDRD values, consider the following method of turning
+on the LED.
+
+    PORTD = 0x04; // turn on the LED
+
+Explain the problem with this approach and, in particular, what would stop
+working after the execution of that line of code.
+
+Answer : 
+ 	The problem with using PORTD = 0x04; is that it directly assigns the value 0x04 to all the bits of PORTD, affecting the entire port. This means that bits 5-3, which are connected to the buttons, will be reset to 0, causing the buttons to stop working. The reason is that assigning a value to PORTD overwrites all the bits, not just bit 2, which controls the LED. As a result, the input state of the buttons is lost since bits 5-3 will no longer reflect the button inputs.
+
+To fix this, we should only modify bit 2 (for the LED) while preserving the current states of bits 5-3 (the buttons). This can be done by using a bitwise OR operation, which ensures that only bit 2 is set to 1, leaving the other bits unchanged.
+
+Here’s the corrected code:
+
+
+Code:
+	PORTD |= 0x04;
+
+By using the bitwise OR (|=) operation, the LED is turned on while the other bits (including bits 5-3 for the buttons) remain unchanged, ensuring the buttons continue to work properly.
+
+
+
+
+Hint: ignore the hardware propagation delays which are very small (tens of ns),
+and think about how your program executes.
+
